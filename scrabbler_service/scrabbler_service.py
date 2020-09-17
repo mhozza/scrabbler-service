@@ -7,6 +7,7 @@ from glob import glob
 import json
 import argparse
 import traceback
+import sys
 
 
 BASE_DIR = path.dirname(path.dirname(path.abspath(__file__)))
@@ -80,7 +81,8 @@ class ScrabblerHandler(BaseHTTPRequestHandler):
             else:
                 self.send_error(404)
                 return
-        except Exception as e:
+        except:
+            traceback.print_exc(file=sys.stdout)
             if self.server.debug:
                 self.send_error(
                     500,
