@@ -7,9 +7,12 @@ RUN apt-get update -y && \
     pip install --no-cache-dir --upgrade pip poetry && \
     poetry config virtualenvs.create false
 
-COPY . /scrabbler/
+COPY ./pyproject.toml .
+COPY ./poetry.lock .
 
 RUN poetry install --no-interaction --no-root
+
+COPY . .
 
 RUN apt-get purge -y --auto-remove gcc libffi-dev && \
     apt-get clean -y
