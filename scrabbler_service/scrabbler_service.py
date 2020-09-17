@@ -6,6 +6,7 @@ from os import path
 from glob import glob
 import json
 import argparse
+import traceback
 
 
 BASE_DIR = path.dirname(path.dirname(path.abspath(__file__)))
@@ -67,16 +68,26 @@ class ScrabblerHandler(BaseHTTPRequestHandler):
         path = parsed_url.path.rstrip("/")
         query = {k: v[0] for k, v in parse_qs(parsed_url.query).items()}
         output = None
-        if path == PERMUTATIONS_PATH:
-            output = self.find_permutations(**query)
-        elif path == REGEX_PATH:
-            output = self.find_regex(**query)
-        elif path == INIT_PATH:
-            output = self.init_dicts(**query)
-        elif path == GET_DICTS_PATH:
-            output = self.get_dicts(**query)
-        else:
-            self.send_error(404)
+        try:
+            if path == PERMUTATIONS_PATH:
+                output = self.find_permutations(**query)
+            elif path == REGEX_PATH:
+                output = self.find_regex(**query)
+            elif path == INIT_PATH:
+                output = self.init_dicts(**query)
+            elif path == GET_DICTS_PATH:
+                output = self.get_dicts(**query)
+            else:
+                self.send_error(404)
+                return
+        except Exception as e:
+            if self.server.debug:
+                self.send_error(
+                    500,
+                    message="Request processing error.",
+                    explain=str(traceback.format_exc()),
+                )
+            self.send_error(500)
             return
 
         self.send_response(200)
@@ -118,13 +129,30 @@ class ScrabblerHandler(BaseHTTPRequestHandler):
         return list(sorted(SCRABBLER_DICTIONARIES.keys()))
 
 
-def run(server_class=HTTPServer, handler_class=BaseHTTPRequestHandler):
+class ScrabblerServer(HTTPServer):
+    def __init__(self, server_address, debug=False, *args, **kwargs):
+        self.debug = debug
+        super().__init__(
+            server_address,
+            ScrabblerHandler,
+            *args,
+            **kwargs,
+        )
+
+
+def run(server_class=HTTPServer):
     parser = argparse.ArgumentParser(description="Scrabbler service.")
     parser.add_argument("-p", "--port", type=int, default=9000)
     parser.add_argument(
         "--lazy-init",
         action="store_true",
         help="Don't initialize ditionaries on start.",
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        help="Send debug info in response.",
     )
 
     args = parser.parse_args()
@@ -133,9 +161,9 @@ def run(server_class=HTTPServer, handler_class=BaseHTTPRequestHandler):
         lazy_dict.init_all()
 
     server_address = ("", args.port)
-    httpd = server_class(server_address, handler_class)
+    httpd = ScrabblerServer(server_address, debug=args.debug)
     httpd.serve_forever()
 
 
 if __name__ == "__main__":
-    run(handler_class=ScrabblerHandler)
+    run()
