@@ -11,4 +11,7 @@ COPY . /scrabbler/
 
 RUN poetry install --no-interaction --no-root
 
-CMD scrabbler_service/scrabble.py --port 9000 --lazy-init
+RUN apt-get purge -y --auto-remove gcc libffi-dev && \
+    apt-get clean -y
+
+CMD scrabbler_service/scrabbler_service.py --port 9000 --lazy-init

@@ -17,6 +17,7 @@ SCRABBLER_DICTIONARIES = {
 PERMUTATIONS_PATH = "/permutations"
 REGEX_PATH = "/regex"
 INIT_PATH = "/init"
+GET_DICTS_PATH = "/dicts"
 MAX_LIMIT = 100
 
 
@@ -72,6 +73,8 @@ class ScrabblerHandler(BaseHTTPRequestHandler):
             output = self.find_regex(**query)
         elif path == INIT_PATH:
             output = self.init_dicts(**query)
+        elif path == GET_DICTS_PATH:
+            output = self.get_dicts(**query)
         else:
             self.send_error(404)
             return
@@ -110,6 +113,9 @@ class ScrabblerHandler(BaseHTTPRequestHandler):
     def init_dicts(self, **kwargs):
         lazy_dict.init_all()
         return "Done"
+
+    def get_dicts(self, **kwargs):
+        return list(sorted(SCRABBLER_DICTIONARIES.keys()))
 
 
 def run(server_class=HTTPServer, handler_class=BaseHTTPRequestHandler):
