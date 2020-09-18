@@ -100,7 +100,7 @@ class ScrabblerHandler(BaseHTTPRequestHandler):
     def find_permutations(self, **kwargs):
         word = kwargs["word"]
         dictionary = kwargs["dict"]
-        limit = min(kwargs.get("limit", 20), MAX_LIMIT)
+        limit = min(int(kwargs.get("limit", 20)), MAX_LIMIT)
         prefix = kwargs.get("prefix", "")
         wildcard = kwargs.get("wildcard", "?")
         use_all_letters = kwargs.get("use_all_letters", "true") == "true"
@@ -116,7 +116,7 @@ class ScrabblerHandler(BaseHTTPRequestHandler):
     def find_regex(self, **kwargs):
         word = unquote(kwargs["word"])
         dictionary = kwargs["dict"]
-        limit = min(kwargs.get("limit", 20), MAX_LIMIT)
+        limit = min(int(kwargs.get("limit", 20)), MAX_LIMIT)
         return scrabbler.find_regex(
             regex=word,
             words=lazy_dict.get_word_list(dictionary),
