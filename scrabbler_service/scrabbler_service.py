@@ -28,12 +28,15 @@ class LazyDict:
     _TRIES = dict()
     _loading = False
 
-    def init_all(self):
+    def init_all(self, words_only=False):
         if self._loading:
             return
         self._loading = True
         for fname in SCRABBLER_DICTIONARIES:
-            self.get_trie(fname)
+            if words_only:
+                self.get_word_list(fname)
+            else:
+                self.get_trie(fname)
 
     def get_word_list(self, dictionary_name):
         if dictionary_name not in self._WORD_LISTS:
@@ -104,14 +107,33 @@ class ScrabblerHandler(BaseHTTPRequestHandler):
         prefix = kwargs.get("prefix", "")
         wildcard = kwargs.get("wildcard", None)
         use_all_letters = kwargs.get("use_all_letters", "true").lower() == "true"
-        return scrabbler.find_permutations(
-            word=word,
-            trie=lazy_dict.get_trie(dictionary),
-            limit=limit,
-            prefix=prefix,
-            wildcard=wildcard,
-            use_all_letters=use_all_letters,
-        )
+
+        words = lazy_dict.get_word_list(dictionary)
+        trie = None
+        if self.server.hot_init:
+            words = scrabbler.filter_dictionary(
+                words,
+                word,
+                prefix=prefix,
+                wildcard=wildcard,
+                use_all_letters=use_all_letters,
+            )
+        else:
+            trie = lazy_dict.get_trie(dictionary)
+
+        if self.server.hot_init and use_all_letters and not wildcard:
+            return words[:limit]
+        else:
+            if trie is None:
+                trie = scrabbler.build_trie(words)
+            return scrabbler.find_permutations(
+                word=word,
+                trie=trie,
+                limit=limit,
+                prefix=prefix,
+                wildcard=wildcard,
+                use_all_letters=use_all_letters,
+            )
 
     def find_regex(self, **kwargs):
         word = unquote(kwargs["word"])
@@ -132,8 +154,9 @@ class ScrabblerHandler(BaseHTTPRequestHandler):
 
 
 class ScrabblerServer(HTTPServer):
-    def __init__(self, server_address, debug=False, *args, **kwargs):
+    def __init__(self, server_address, hot_init=True, debug=False, *args, **kwargs):
         self.debug = debug
+        self.hot_init = hot_init
         super().__init__(
             server_address,
             ScrabblerHandler,
@@ -151,6 +174,11 @@ def run(server_class=HTTPServer):
         help="Don't initialize ditionaries on start.",
     )
     parser.add_argument(
+        "--hot-init",
+        action="store_true",
+        help="Build tree only on a relevant part of the dictionary for a given word.",
+    )
+    parser.add_argument(
         "-d",
         "--debug",
         action="store_true",
@@ -160,10 +188,10 @@ def run(server_class=HTTPServer):
     args = parser.parse_args()
 
     if not args.lazy_init:
-        lazy_dict.init_all()
+        lazy_dict.init_all(words_only=args.hot_init)
 
     server_address = ("", args.port)
-    httpd = ScrabblerServer(server_address, debug=args.debug)
+    httpd = ScrabblerServer(server_address, hot_init=args.hot_init, debug=args.debug)
     httpd.serve_forever()
 
 

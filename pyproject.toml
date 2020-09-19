@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "scrabbler-service"
-version = "0.1.6"
+version = "0.2.0"
 description = "Simple HTTP service wrapper around http://github.com/mhozza/pyscrabbler."
 authors = ["Michal Hozza <mhozza@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-scrabbler = "^0.2.3"
+scrabbler = "^0.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

@@ -105,7 +105,7 @@ description = "Scrabbler."
 name = "scrabbler"
 optional = false
 python-versions = ">=3.8,<4.0"
-version = "0.2.3"
+version = "0.3.0"
 
 [package.dependencies]
 string_algorithms = ">=0.5.0,<0.6.0"
@@ -135,7 +135,7 @@ python-versions = "*"
 version = "0.2.5"
 
 [metadata]
-content-hash = "df225f70b81c5b3b3e24bd15d577dbe80750776fbfae9c7211f8a068047c739f"
+content-hash = "a94c08fa752c57dd127dd67c0e856806ed3ad58402014189d3a5eb0687c46935"
 lock-version = "1.0"
 python-versions = "^3.8"
 
@@ -177,8 +177,8 @@ pytest = [
     {file = "pytest-5.4.3.tar.gz", hash = "sha256:7979331bfcba207414f5e1263b5a0f8f521d0f457318836a7355531ed1a4c7d8"},
 ]
 scrabbler = [
-    {file = "scrabbler-0.2.3-py3-none-any.whl", hash = "sha256:3ac8de44b2e697f41cf8d889f0e7607673fbead1e93b08ba182df6176c06f835"},
-    {file = "scrabbler-0.2.3.tar.gz", hash = "sha256:d7f01d97d8e0a266e1c9904a95cc33e8d14b30f2d36adfef1a80408c29f73a28"},
+    {file = "scrabbler-0.3.0-py3-none-any.whl", hash = "sha256:1ed5e8a2d85cc582eac208319a7ce8e40c6edfe81c4c83f2c3d667b4b61f67da"},
+    {file = "scrabbler-0.3.0.tar.gz", hash = "sha256:b3bb57dc29767e55c8dbd4c5feaff4d3bfe903c189af6b47cac914e263efd8d6"},
 ]
 six = [
     {file = "six-1.15.0-py2.py3-none-any.whl", hash = "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"},
